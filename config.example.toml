@@ -1,0 +1,31 @@
+# Copy to ~/.config/qci-infra/config.toml on the Mac Studio.
+
+[[subscriptions]]
+id = "b7e90e29-6cd5-4df4-bdbd-1bf574510709"
+name = "QCI Internal"
+
+[[subscriptions]]
+id = "fe5d8f2a-e1ad-46a9-b6a1-77c3b013e220"
+name = "QCI Pay-As-You-Go"
+
+[[subscriptions]]
+id = "3ee1b1e9-6335-41b2-abb3-e0710745ef33"
+name = "Pay-As-You-Go"
+
+[email]
+to = "barunachalam@quickcustomintelligence.com"
+sender = "CHANGE-ME@quickcustomintelligence.com"   # must be a verified sender in SendGrid
+api_key_file = "~/.config/qci-infra/sendgrid.key"  # one line, chmod 600
+
+[thresholds]
+cpu_percent = 90
+mem_available_percent = 10
+mem_available_percent_sql = 2   # VMs with SQL Server (it holds most RAM by design)
+window_points = 3          # 5-minute points (3 = sustained 15 min)
+cost_spike_ratio = 1.5
+cost_spike_min_usd = 100
+
+[service]
+db = "~/.local/share/qci-infra/state.db"
+heartbeat_url = ""         # optional, e.g. a healthchecks.io ping URL
+ignore_tag = "qci-monitor" # tag a VM qci-monitor=off to skip it
