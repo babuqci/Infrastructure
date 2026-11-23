@@ -8,7 +8,7 @@ import httpx
 
 from . import azure, notify
 from .config import Config, load_config
-from .rules import METRIC_KINDS, OK_POWER, VM_KINDS, Finding, cost_findings, vm_findings
+from .rules import METRIC_KINDS, STOPPED_POWER, VM_KINDS, Finding, cost_findings, vm_findings
 from .store import connect, open_alerts, reconcile, save_cost
 
 
@@ -38,7 +38,7 @@ def check(cfg: Config, dry_run: bool):
             continue
         metrics, failed = {}, []
         for vm in vms:
-            if vm.get("power") not in OK_POWER:
+            if vm.get("power") in STOPPED_POWER:
                 continue
             try:
                 metrics[vm["id"].lower()] = azure.vm_metrics(arm, s.id, vm["id"])

@@ -31,12 +31,12 @@ October by category: VMs $14.4K · Storage $3.5K · **DDoS Protection $3.0K** ·
 
 ### Cost (QCI Internal unless noted)
 
-1. **DDoS Protection plan `neoddos` costs $3,000/month ($36K/year)**, for the NEO resource group. It's the single biggest line item. For a small fleet, that's usually not worth it; Azure's basic DDoS protection is free and always on. → **Review first.**
-2. **Azure Firewall `neovnet-firewall` costs $930/month**, also NEO. Check whether NSGs alone would be enough.
-3. **Two VPN gateways at $402/month each** (`qci_internal_virtual_network_gateway`, `qci_virtual_gateway`). Check whether both are in use.
+1. ~~**DDoS Protection plan `neoddos` costs $3,000/month ($36K/year)**~~ → **Removed 2026-11-22.** NEOVnet now uses Azure's free basic DDoS protection.
+2. ~~**Azure Firewall `neovnet-firewall` costs $930/month**~~ → **Removed 2026-11-22.** No route tables sent traffic through it; the NEO VMs keep their per-VM NSG allow-lists. Its public IP `neovnet-firewall` is left over (unattached).
+3. **VPN gateways:** the unused `qci_internal_virtual_network_gateway` (East US) and its 2 IPs were **removed 2026-11-22** (~$410/month). `qci_virtual_gateway` (Grand Royal) carries a live site-to-site tunnel, so it stays; it could be downsized to VpnGw1AZ (~$140/month less).
 4. **QCIReplitSQL** (E32-8as_v7) costs $2.5K/month and is the most expensive VM. Its two data-disk snapshots from 2026-09-28 may be old backups.
 5. **Dev/demo VMs run 24×7.** QCIDevelopment has 18 VMs costing about $9K/month: QCIReplitSQL, NewDevelopSQL, qcidemosql, qcihotfixsql, missionm, and others. Shutting them down at night and on weekends could save 50–65% of that.
-6. **Unattached disks in QCI Pay-As-You-Go: 5 disks (2.9 TB), 4 of them Premium**, some dating from 2020–2022, roughly $390/month. Candidates for deletion once confirmed.
+6. **Unattached disks:** 4 deleted 2026-11-22 (~$250/month). `SkyRiverFTP_DataDisk_0` (1 TB Premium, ~$135/month) is kept until its contents are checked.
 7. **7 unused public IPs** (4 in QCI Internal, 3 in QCI Pay-As-You-Go), about $3.65/month each.
 8. **Azure Hybrid Benefit is barely used.** Only 1 of the 34 Windows VMs has it (QCI-PORTAL-PROD). There are also 27 SQL Server VMs. If QCI owns Windows or SQL licenses with Software Assurance, this is the biggest saving lever. → Question for you.
 9. **53 Premium SSD disks.** Some low-IO servers could move to Standard SSD. Phase 3 will check this with metrics.

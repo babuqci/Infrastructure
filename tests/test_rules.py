@@ -30,6 +30,13 @@ def test_stopped_vm_is_down():
     assert f[0].key == "vm-down:sub-1:vm-a"
 
 
+def test_unknown_power_state_alone_is_not_down():
+    # Resource Graph occasionally returns a VM with no power state; other signals decide.
+    assert vm_findings(SUB, [vm(power="")], {VM_ID.lower(): "Available"}, metrics(), TH, "qci-monitor") == []
+    assert kinds(vm_findings(SUB, [vm(power="")], {VM_ID.lower(): "Unavailable"}, metrics(), TH,
+                             "qci-monitor")) == ["vm-down"]
+
+
 def test_starting_vm_is_not_down():
     assert vm_findings(SUB, [vm(power="PowerState/starting")], {}, metrics(), TH, "qci-monitor") == []
 

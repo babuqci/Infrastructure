@@ -15,7 +15,10 @@ def send(cfg: Email, subject: str, body: str, dry_run: bool = False):
     if dry_run:
         print(f"--- EMAIL (dry run) to {cfg.to}\nSubject: {subject}\n\n{body}\n---")
         return
-    key = Path(os.path.expanduser(cfg.api_key_file)).read_text().strip()
+    key_path = Path(os.path.expanduser(cfg.api_key_file))
+    if key_path.stat().st_mode & 0o077:
+        raise RuntimeError(f"{key_path} is readable by other users; run: chmod 600 {key_path}")
+    key = key_path.read_text().strip()
     r = httpx.post(SENDGRID_URL, timeout=30, headers={"Authorization": f"Bearer {key}"}, json={
         "personalizations": [{"to": [{"email": cfg.to}]}],
         "from": {"email": cfg.sender, "name": "QCI Infra Monitor"},

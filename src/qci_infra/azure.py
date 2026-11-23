@@ -4,7 +4,7 @@ import json
 import shutil
 import subprocess
 import time
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 import httpx
 
@@ -39,6 +39,8 @@ class Arm:
 
     def request(self, method: str, sub: str, url: str, body=None) -> dict:
         url = url if url.startswith("https://") else ARM + url
+        if urlsplit(url).hostname != urlsplit(ARM).hostname:  # never send the token elsewhere (e.g. a nextLink)
+            raise AzureError(f"refusing non-ARM URL: {url.split('?')[0]}")
         for attempt in range(5):
             r = self._http.request(method, url, json=body, headers={"Authorization": f"Bearer {self._token(sub)}"})
             if r.status_code == 429 or r.status_code >= 500:
@@ -57,8 +59,11 @@ class Arm:
         raise AzureError(f"{method} {url.split('?')[0]} -> still throttled/failing after retries")
 
     def get_all(self, sub: str, url: str) -> list[dict]:
-        items = []
+        items, pages = [], 0
         while url:
+            pages += 1
+            if pages > 100:
+                raise AzureError(f"too many pages from {url.split('?')[0]}")
             d = self.request("GET", sub, url)
             items += d.get("value", [])
             url = d.get("nextLink")

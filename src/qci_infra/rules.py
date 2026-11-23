@@ -8,7 +8,7 @@ from .config import Thresholds
 CPU = "Percentage CPU"
 MEM = "Available Memory Percentage"
 AVAIL = "VmAvailabilityMetric"
-OK_POWER = {"PowerState/running", "PowerState/starting"}
+STOPPED_POWER = {"PowerState/stopped", "PowerState/stopping", "PowerState/deallocated", "PowerState/deallocating"}
 
 VM_KINDS = ("vm-down", "vm-degraded", "cpu-high", "mem-low")
 METRIC_KINDS = ("cpu-high", "mem-low")
@@ -38,8 +38,8 @@ def vm_findings(sub, vms, health, metrics, th: Thresholds, ignore_tag: str) -> l
         state = health.get(vid)
 
         reasons = []
-        if vm.get("power") not in OK_POWER:
-            reasons.append(f"power state {(vm.get('power') or 'unknown').removeprefix('PowerState/')}")
+        if vm.get("power") in STOPPED_POWER:
+            reasons.append(f"power state {vm['power'].removeprefix('PowerState/')}")
         if state == "Unavailable":
             reasons.append("Resource Health: Unavailable")
         if m.get(AVAIL) and m[AVAIL][-1] == 0:
