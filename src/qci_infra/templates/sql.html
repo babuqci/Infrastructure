@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block body %}
+<h1>SQL Server</h1>
+{% if servers %}<div class="wrap"><table><tr>{% for k in servers[0].keys() %}<th>{{ k }}</th>{% endfor %}</tr>
+{% for s in servers %}<tr>{% for v in s.values() %}<td>{{ '' if v is none else v }}</td>{% endfor %}</tr>{% endfor %}
+</table></div>{% else %}<p class="muted">No SQL Server health data yet; the SQL check fills it.</p>{% endif %}
+{% endblock %}

@@ -17,7 +17,7 @@ install -d -m 700 ~/.config/qci-infra
 [ -f ~/.config/qci-infra/config.toml ] || install -m 600 config.example.toml ~/.config/qci-infra/config.toml
 chmod 700 ~/.config/qci-infra && chmod 600 ~/.config/qci-infra/*
 [ "${1:-}" = "--no-launchd" ] && { echo "installed (launchd untouched)"; exit 0; }
-for job in check daily; do
+for job in check sqlcheck certcheck daily web; do
   plist=~/Library/LaunchAgents/com.qci.infra.$job.plist
   sed "s#__HOME__#$HOME#g" deploy/com.qci.infra.$job.plist > "$plist"
   launchctl bootout gui/$(id -u) "$plist" 2>/dev/null || true

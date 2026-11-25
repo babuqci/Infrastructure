@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block body %}
+<h1>Alerts</h1>
+<h2>Open ({{ open|length }})</h2>
+{% if open %}<div class="wrap"><table><tr><th>Kind</th><th>Subscription</th><th>Summary</th><th>Opened (UTC)</th><th>Last seen (UTC)</th></tr>
+{% for a in open %}<tr><td class="bad">{{ a.kind }}</td><td>{{ sub_names.get(a.sub, a.sub) }}</td><td>{{ a.summary }}</td><td>{{ a.opened_at }}</td><td>{{ a.last_seen }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="ok">No open alerts.</p>{% endif %}
+<h2>Recently resolved</h2>
+<div class="wrap"><table><tr><th>Kind</th><th>Subscription</th><th>Summary</th><th>Opened (UTC)</th><th>Resolved (UTC)</th></tr>
+{% for a in resolved %}<tr><td>{{ a.kind }}</td><td>{{ sub_names.get(a.sub, a.sub) }}</td><td>{{ a.summary }}</td><td>{{ a.opened_at }}</td><td>{{ a.resolved_at }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

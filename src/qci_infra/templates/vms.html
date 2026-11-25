@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block body %}
+<h1>VMs ({{ vms|length }})</h1>
+<div class="wrap"><table><tr><th>Name</th><th>Subscription</th><th>Resource group</th><th>Location</th><th>Size</th><th>OS</th><th>Power</th><th>Health</th><th>CPU %</th><th>Mem free %</th><th>SQL</th><th>Updated (UTC)</th></tr>
+{% for v in vms %}{% set pw = (v.power or '')|replace('PowerState/', '') %}
+<tr><td>{{ v.name }}</td><td>{{ sub_names.get(v.sub, v.sub) }}</td><td>{{ v.rg }}</td><td>{{ v.location }}</td><td>{{ v.size }}</td><td>{{ v.os }}</td>
+<td class="{{ 'ok' if pw == 'running' else 'warn' }}">{{ pw or '?' }}</td>
+<td class="{{ 'ok' if v.health == 'Available' else 'bad' if v.health in ('Unavailable', 'Degraded') else 'muted' }}">{{ v.health or '' }}</td>
+<td class="num">{{ '%.0f'|format(v.cpu) if v.cpu is not none }}</td><td class="num">{{ '%.0f'|format(v.mem) if v.mem is not none }}</td>
+<td>{{ 'yes' if v.is_sql }}</td><td class="muted">{{ v.updated_at }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

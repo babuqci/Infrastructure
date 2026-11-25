@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block body %}
+<h1>Cost, last 30 days: ${{ '{:,.0f}'.format(total) }}</h1>
+{% if days %}<div class="bars">{% for d, c in days %}<div style="height:{{ (c / peak * 100)|round(1) }}%" title="{{ d }}: ${{ '{:,.2f}'.format(c) }}"></div>{% endfor %}</div>
+<p class="muted">{{ days[0][0] }} to {{ days[-1][0] }}, all subscriptions with cost access. Hover a bar for the day.</p>{% else %}<p class="muted">No cost data yet; the daily job fills it.</p>{% endif %}
+<h2>By subscription</h2>
+<div class="wrap"><table><tr><th>Subscription</th><th>30 days</th></tr>
+{% for sub, c in by_sub %}<tr><td>{{ sub_names.get(sub, sub) }}</td><td class="num">${{ '{:,.2f}'.format(c) }}</td></tr>{% endfor %}
+</table></div>
+<h2>By day</h2>
+<div class="wrap"><table><tr><th>Day</th><th>Cost</th></tr>
+{% for d, c in days|reverse %}<tr><td>{{ d }}</td><td class="num">${{ '{:,.2f}'.format(c) }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

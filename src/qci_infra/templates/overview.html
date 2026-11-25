@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block body %}
+<h1>Overview</h1>
+<div class="tiles">
+<div class="tile"><div class="n">{{ running }} / {{ total }}</div><div class="l">VMs running</div></div>
+<div class="tile"><div class="n {{ 'bad' if alerts else 'ok' }}">{{ alerts|length }}</div><div class="l">Open alerts</div></div>
+{% for sub, c in mtd.items() %}<div class="tile"><div class="n">${{ '{:,.0f}'.format(c) }}</div><div class="l">{{ sub_names.get(sub, sub) }} month to date</div></div>{% endfor %}
+</div>
+<h2>Open alerts</h2>
+{% if alerts %}<div class="wrap"><table><tr><th>Kind</th><th>Subscription</th><th>Summary</th><th>Since (UTC)</th></tr>
+{% for a in alerts %}<tr><td class="bad">{{ a.kind }}</td><td>{{ sub_names.get(a.sub, a.sub) }}</td><td>{{ a.summary }}</td><td>{{ a.opened_at }}</td></tr>{% endfor %}
+</table></div>{% else %}<p class="ok">No open alerts.</p>{% endif %}
+<h2>Last runs</h2>
+<div class="wrap"><table><tr><th>Job</th><th>Finished (UTC)</th><th>Status</th><th>Message</th></tr>
+{% for r in runs %}<tr><td>{{ r.job }}</td><td>{{ r.finished_at }}</td><td class="{{ 'ok' if r.ok else 'bad' }}">{{ 'ok' if r.ok else 'failed' }}</td><td>{{ r.message }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block body %}
+<h1>Certificates</h1>
+{% if certs %}<div class="wrap"><table><tr><th>server</th><th>names</th><th>status</th><th>days left</th><th>expires</th>
+<th>issuer</th><th>source</th><th>renewal</th><th>thumbprint</th><th>detail</th><th>updated</th></tr>
+{% for c in certs %}<tr><td>{{ c.server }}</td><td>{{ c.names or '' }}</td>
+<td class="{{ {'ok': 'ok', 'expiring': 'warn', 'skipped': 'muted'}.get(c.status, 'bad') }}">{{ c.status }}</td>
+<td class="num">{{ '' if c.days_left is none else '%.0f' % c.days_left }}</td><td>{{ (c.not_after or '')[:10] }}</td>
+<td>{{ c.issuer or '' }}</td><td>{{ c.source or '' }}</td><td>{{ c.renewal or '' }}</td>
+<td class="muted">{{ (c.thumbprint or '')[:12] }}</td><td>{{ c.detail or '' }}</td><td class="muted">{{ (c.updated_at or '')[:16] }}</td></tr>
+{% endfor %}</table></div>{% else %}<p class="muted">No certificate data yet; the certificate check fills it.</p>{% endif %}
+{% endblock %}

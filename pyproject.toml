@@ -3,10 +3,20 @@ name = "qci-infra"
 version = "0.1.0"
 description = "Monitor QCI cloud servers, track cost, and email alerts."
 requires-python = ">=3.12"
-dependencies = ["httpx>=0.27"]
+dependencies = [
+    "certifi",
+    "httpx>=0.27",
+    "pymssql>=2.3",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "authlib>=1.3",
+    "itsdangerous>=2.1",
+    "jinja2>=3.1",
+]
 
 [project.scripts]
 qci-infra = "qci_infra.cli:main"
+qci-infra-web = "qci_infra.web:main"
 
 [build-system]
 requires = ["hatchling"]

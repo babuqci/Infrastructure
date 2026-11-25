@@ -66,6 +66,9 @@ def digest_email(day: str, fleet: list[dict], open_rows: list, cost: list[dict])
             continue
         lines.append(f"  {c['sub_name']}: yesterday ${c['yesterday']:,.0f}, MTD ${c['mtd']:,.0f}, "
                      f"projected ${c['projected']:,.0f}")
-        lines += [f"      {cost_:>9,.0f}  {name}" for name, cost_ in c["top"]]
+        if c["top"]:
+            lines.append(f"      {'MTD':>9}  {'yesterday':>9}  resource")
+        lines += [f"      {mtd_:>9,.0f}  {day:>9,.0f}  {name}{'  (no cost yesterday)' if day < 0.5 else ''}"
+                  for name, mtd_, day in c["top"]]
     lines.append("\nCost data lags Azure by up to a day.")
     return subject, "\n".join(lines)

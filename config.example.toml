@@ -25,7 +25,30 @@ window_points = 3          # 5-minute points (3 = sustained 15 min)
 cost_spike_ratio = 1.5
 cost_spike_min_usd = 100
 
+[sql]                      # qci-infra sql-check (hourly, SQL Server Developer VMs)
+backup_max_age_hours = 26  # newest full backup of qcidb older than this alerts
+disk_free_percent = 10     # a fixed drive alerts below this % free...
+disk_free_gb = 20          # ...or below this many GB free
+timeout_minutes = 20       # per-VM Run Command limit
+
+[certs]                    # qci-infra cert-check (daily 07:30): TLS certificates on the app servers
+warn_days = 21             # alert when fewer days are left (Let's Encrypt renews at 30)
+timeout_minutes = 15       # per-VM Run Command limit
+skip_hosts = []            # hostnames never probed over TLS from the Mac Studio
+# VMs with IIS HTTPS bindings or Let's Encrypt certs (discovery of 2026-11-23)
+servers = ["GRQCIAPP01", "LammesAppServer", "NEOAppServer", "QCI-PORTAL-PROD", "API", "missionm",
+           "NewDevelopApp", "qcidemoapp", "qcihotfixapp", "qciresortapp", "RSGAppServer", "StockyardsAppServer",
+           "QCIDevAppServer", "QCIFinApp", "QCIPlayer",
+           "ChatalyticsProxy", "CustomerChatalyticsServer", "QCIWebHook"]
+
 [service]
 db = "~/.local/share/qci-infra/state.db"
 heartbeat_url = ""         # optional, e.g. a healthchecks.io ping URL
 ignore_tag = "qci-monitor" # tag a VM qci-monitor=off to skip it
+
+[web]  # read-only UI (qci-infra-web), published on the tailnet by `tailscale serve`
+base_url = "https://mac.tailf3f9e6.ts.net"
+allowed_domain = "quickcustomintelligence.com"
+google_client_id = "<client id>.apps.googleusercontent.com"
+google_client_secret_file = "~/.config/qci-infra/google_client.secret"
+session_secret_file = "~/.config/qci-infra/session.key"
