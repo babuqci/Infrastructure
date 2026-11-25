@@ -20,14 +20,15 @@ def resolve(host: str) -> list[str]:
 
 
 def is_public(addrs: list[str]) -> bool:
-    return any(ipaddress.ip_address(a).is_global for a in addrs)
+    """Every address must be global: one internal address fails the whole name."""
+    return bool(addrs) and all(ipaddress.ip_address(a).is_global for a in addrs)
 
 
-def _handshake(host: str, port: int, timeout: float, verify: bool) -> tuple[bytes, dict]:
+def _handshake(host: str, addr: str, port: int, timeout: float, verify: bool) -> tuple[bytes, dict]:
     ctx = ssl.create_default_context(cafile=certifi.where())
     if not verify:
         ctx.check_hostname, ctx.verify_mode = False, ssl.CERT_NONE
-    with socket.create_connection((host, port), timeout=timeout) as s, ctx.wrap_socket(s, server_hostname=host) as t:
+    with socket.create_connection((addr, port), timeout=timeout) as s, ctx.wrap_socket(s, server_hostname=host) as t:
         return t.getpeercert(binary_form=True), t.getpeercert()
 
 
@@ -42,17 +43,18 @@ def _decode(der: bytes) -> dict:
         os.unlink(path)
 
 
-def served_cert(host: str, port: int = 443, timeout: float = 10) -> dict:
+def served_cert(host: str, addr: str, port: int = 443, timeout: float = 10) -> dict:
     """{thumb, not_after (ISO UTC), names, issuer, error}: `error` is the chain/hostname
     verification failure, or None when the certificate verifies for `host`.
+    Connects to `addr` (already vetted by is_public), never re-resolving `host`.
     Raises OSError when no TLS handshake is possible."""
     try:
-        der, info = _handshake(host, port, timeout, verify=True)
+        der, info = _handshake(host, addr, port, timeout, verify=True)
         error = None
     except ssl.SSLCertVerificationError as e:
         error = e.verify_message or str(e)
         # Second handshake only to read the (untrusted) certificate for the report; no data is sent.
-        der, _ = _handshake(host, port, timeout, verify=False)
+        der, _ = _handshake(host, addr, port, timeout, verify=False)
         info = _decode(der)
     issuer = dict(x[0] for x in info.get("issuer", ()))
     end = datetime.fromtimestamp(ssl.cert_time_to_seconds(info["notAfter"]), timezone.utc)

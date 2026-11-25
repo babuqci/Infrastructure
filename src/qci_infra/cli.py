@@ -469,7 +469,7 @@ def cert_check(cfg: Config, dry_run: bool):
             continue
         scope.add(("cert-collector", sub, url))
         try:
-            sc = tls.served_cert(host)
+            sc = tls.served_cert(host, next((a for a in addrs if ":" not in a), addrs[0]))  # prefer IPv4
         except (OSError, ValueError) as e:
             all_ok = False
             findings.append(Finding("cert-collector", sub, url, f"{host}: TLS probe on 443 failed: {e}"))

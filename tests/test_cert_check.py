@@ -182,7 +182,7 @@ def test_cert_check_scope(monkeypatch, capsys):
     monkeypatch.setattr(azure, "run_powershell", run_ps)
     monkeypatch.setattr(azure, "run_shell", lambda *a: (LINUX, ""))
     monkeypatch.setattr(tls, "resolve", lambda h: ["10.0.0.4"] if h == "web.example.com" else ["20.1.2.3"])
-    monkeypatch.setattr(tls, "served_cert", lambda h: served())
+    monkeypatch.setattr(tls, "served_cert", lambda h, a: served())
     earlier = [Finding("cert-expiring", "S", f"{n}/app.example.com", "x") for n in ("good", "bad", "busy", "off")]
     earlier += [Finding("cert-mismatch", "S", "https://app.example.com", "x"),
                 Finding("cert-mismatch", "S", "https://gone.example.com", "x")]
@@ -203,3 +203,10 @@ def test_cert_check_scope(monkeypatch, capsys):
     assert rows["busy|none"]["detail"].startswith("another Run Command is executing")
     assert rows["off|none"]["detail"] == "not probed: VM PowerState/deallocated"
     assert "RESOLVED" in capsys.readouterr().out
+
+
+def test_is_public_requires_every_address_global():
+    from qci_infra import tls
+    assert tls.is_public(["20.9.144.116"])
+    assert not tls.is_public(["20.9.144.116", "10.0.0.4"])  # one internal address fails the name
+    assert not tls.is_public(["169.254.169.254"]) and not tls.is_public([])
