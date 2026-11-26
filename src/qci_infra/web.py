@@ -74,7 +74,7 @@ def current_user(request: Request) -> dict:
 
 def default_db(cfg: Config) -> Db:
     d = cfg.database
-    return connect_mssql(d.server, d.database, d.user, d.password_file) if d else connect_sqlite(cfg.db)
+    return connect_mssql(d.server, d.database, d.user, d.password_file, d.freetds_conf) if d else connect_sqlite(cfg.db)
 
 
 def create_app(cfg: Config, wcfg: WebConfig, db_factory=None, client_secret: str | None = None,

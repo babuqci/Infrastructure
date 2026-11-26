@@ -56,6 +56,7 @@ class Database:
     database: str
     user: str
     password_file: str
+    freetds_conf: str = ""  # FreeTDS config pinning the server's TLS cert ("ca file"); required if set
 
 
 @dataclass(frozen=True)

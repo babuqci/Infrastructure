@@ -40,7 +40,7 @@ def open_db(cfg: Config, dry_run: bool) -> Db:
     marker = Path(os.path.expanduser(cfg.db)).with_suffix(".mssql-down")
     d = cfg.database
     try:
-        db = connect_mssql(d.server, d.database, d.user, d.password_file)
+        db = connect_mssql(d.server, d.database, d.user, d.password_file, d.freetds_conf)
     except Exception as e:
         log(f"SQL Server unreachable, using local SQLite: {e}")
         if not marker.exists():

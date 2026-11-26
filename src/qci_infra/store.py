@@ -89,8 +89,14 @@ def connect_sqlite(path: str) -> Db:
     return Db(conn, mssql=False)
 
 
-def connect_mssql(server: str, database: str, user: str, password_file: str) -> Db:
+def connect_mssql(server: str, database: str, user: str, password_file: str, freetds_conf: str = "") -> Db:
     import pymssql  # imported lazily so tests don't need it
+
+    if freetds_conf:  # fail closed: never fall back to an unverified TLS connection
+        conf = Path(os.path.expanduser(freetds_conf))
+        if not conf.is_file():
+            raise FileNotFoundError(f"FreeTDS config {conf} missing; refusing unverified SQL connection")
+        os.environ["FREETDSCONF"] = str(conf)
 
     password = Path(os.path.expanduser(password_file)).read_text().strip()
     conn = pymssql.connect(server=server, user=user, password=password, database=database,

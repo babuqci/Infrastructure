@@ -91,3 +91,13 @@ def test_save_certs_replaces_snapshot():
     save_certs(db, [{"id": "vm-a|CD", "sub": "sub-1", "server": "vm-a", "status": "expiring", "days_left": 3.0}], T2)
     rows = db.query("select * from certs")
     assert [(r["id"], r["status"], r["days_left"], r["updated_at"]) for r in rows] == [("vm-a|CD", "expiring", 3.0, T2)]
+
+
+def test_mssql_refuses_when_pinned_freetds_conf_missing(tmp_path, monkeypatch):
+    import pytest
+    from qci_infra.store import connect_mssql
+
+    monkeypatch.delenv("FREETDSCONF", raising=False)
+    with pytest.raises(FileNotFoundError, match="refusing unverified"):
+        connect_mssql("192.0.2.1", "db", "u", str(tmp_path / "pw"), str(tmp_path / "missing.conf"))
+    assert "FREETDSCONF" not in __import__("os").environ
